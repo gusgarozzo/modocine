@@ -8,8 +8,6 @@ function tablaDinamica() {
   btnRandom.addEventListener("click", agregarVarios);
   let btnAgregar = document.getElementById("btn-agregar");
   btnAgregar.addEventListener("click", enviarForm);
-  let btnReset = document.getElementById("btn-reset");
-  btnReset.addEventListener("click", borrarTabla);
   let url = "https://web-unicen.herokuapp.com/api/groups/30GarozzoRios/tablacine/";
   let tabla = [];
   window.onload = cargarTabla;
