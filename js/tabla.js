@@ -13,7 +13,6 @@ function tablaDinamica() {
   window.onload = cargarTabla;
 
 
-  //console.log(cine)
 
   // DEFINO VARIABLES PARA LA TABLA
   let boleteria = document.getElementById("boleteria");
@@ -65,6 +64,8 @@ function tablaDinamica() {
         td5.innerHTML = subtotal;
         let id = t[i]._id;
         //console.log(id);
+
+        // BOTONES PARA EDITAR Y BORRAR FILA EN TABLA Y EN LA API
         let btn_editar = document.createElement("button");
         btn_editar.id = "btn-editar-" + i;
         btn_editar.addEventListener("click", () => editarFila(id));
@@ -97,11 +98,11 @@ function tablaDinamica() {
     };
   }
 
-  ////////* AGREGA VARIOS ELEMENTOS A LA TABLA *////////
+  ////////* AGREGA VARIOS ELEMENTOS ALEATORIOS A LA TABLA *////////
   function agregarVarios() {
-    procesarFila(1, "A Quiet Place 2", 2, "Showcase", 200, "agregar_varios", false);
-    procesarFila(2, "Bad Boys 3", 1, "Cinemark", 200, "agregar_varios", false);
-    procesarFila(3, "Black Widow", 1, "Hoys", 200, "agregar_varios", true);
+    enviarServidor(1, "A Quiet Place 2", 2, "Cinemacenter", 200, "agregar_varios", false);
+    enviarServidor(2, "Bad Boys 3", 1, "Cinemark", 200, "agregar_varios", false);
+    enviarServidor(3, "Black Widow", 1, "Hoyts", 200, "agregar_varios", true);
 
     cargarTabla();
   }
@@ -116,11 +117,10 @@ function tablaDinamica() {
     let identificador = document.getElementById("id").value;
     let operacion = document.getElementById("operacion").value;
     console.log(identificador + " , " + operacion)
-    procesarFila(identificador, pelicula, asientos, complejo, valor, operacion, true);
+    enviarServidor(identificador, pelicula, asientos, complejo, valor, operacion, true);
   }
 
-  function procesarFila(id, pelicula, asientos, complejo, valor, operacion, refreshTable) {
-    async function enviarServidor() {
+    async function enviarServidor(id, pelicula, asientos, complejo, valor, operacion, refreshTable) {
       event.preventDefault();
       let container = document.querySelector("#use-ajax");
       container.innerHTML = "<h1>Agregando Entradas...</h1>";
@@ -138,10 +138,6 @@ function tablaDinamica() {
         url_int = url + id;
         method = "PUT";
       }
-      //console.log("url_int: " + url_int);
-      //console.log("method: " + method);
-      //console.log("operacion: " + operacion);
-      //console.log("refreshTable: " + refreshTable);
       try {
         let response = await fetch(url_int, {
           "method": method,
@@ -164,76 +160,67 @@ function tablaDinamica() {
       };
     }
 
-    enviarServidor();
-  }
-
-  function editarFila(id) {
-    async function editarEnServidor() {
-      let container = document.querySelector("#use-ajax");
-      container.innerHTML = "<h1>Editando Fila...</h1>";
-      try {
-        let response = await fetch(url + id, {
-          "method": "GET", //JUAN HABIA PUESTO GET
-          "headers": { "Content-Type": "application/json" }
-        }
-        );
-        if (response.ok) {
-          let t = await response.json();
-          console.log(t);
-          t = t.information.thing;
-          console.log(t);
-
-
-          let pelicula = document.getElementById("pelicula");
-          let asientos = document.getElementById("asientos");
-          let complejo = document.getElementById("complejo");
-          let valor = document.getElementById("valor");
-          let identificador = document.getElementById("id");
-          let operacion = document.getElementById("operacion");
-
-          pelicula.value = t.pelicula;
-          asientos.value = t.asientos;
-          complejo.value = t.complejo;
-          valor.value = t.precio;
-          operacion.value = "editar";
-          identificador.value = id;
-        }
-        else
-          container.innerHTML = "<h1>Error - Failed URL!</h1>";
+  async function editarFila(id) {
+    let container = document.querySelector("#use-ajax");
+    container.innerHTML = "<h1>Editando Fila...</h1>";
+    try {
+      let response = await fetch(url + id, {
+        "method": "GET", //JUAN HABIA PUESTO GET
+        "headers": { "Content-Type": "application/json" }
       }
-      catch (response) {
-        container.innerHTML = "<h1>Connection error</h1>";
-      };
-    }
+      );
+      if (response.ok) {
+        let t = await response.json();
+        console.log(t);
+        t = t.information.thing;
+        console.log(t);
 
-    editarEnServidor();
-  }
 
-  function borrarFila(id) {
-    async function borrarEnServidor() {
-      let container = document.querySelector("#use-ajax");
-      container.innerHTML = "<h1>borrando fila...</h1>";
-      try {
-        let response = await fetch(url + id, {
-          "method": "DELETE",
-          "headers": { "Content-Type": "application/json" }
-        }
-        );
-        if (response.ok) {
-          container.innerHTML = "";
-          borrarTabla();
-          cargarTabla();
-        }
-        else
-          container.innerHTML = "<h1>Error - Failed URL!</h1>";
+        let pelicula = document.getElementById("pelicula");
+        let asientos = document.getElementById("asientos");
+        let complejo = document.getElementById("complejo");
+        let valor = document.getElementById("valor");
+        let identificador = document.getElementById("id");
+        let operacion = document.getElementById("operacion");
+
+        pelicula.value = t.pelicula;
+        asientos.value = t.asientos;
+        complejo.value = t.complejo;
+        valor.value = t.precio;
+        operacion.value = "editar";
+        identificador.value = id;
       }
-      catch (response) {
-        container.innerHTML = "<h1>Connection error</h1>";
-      };
+      else
+        container.innerHTML = "<h1>Error - Failed URL!</h1>";
     }
-    borrarEnServidor();
+    catch (response) {
+      container.innerHTML = "<h1>Connection error</h1>";
+    };
   }
 
+  async function borrarFila(id) {
+    let container = document.querySelector("#use-ajax");
+    container.innerHTML = "<h1>borrando fila...</h1>";
+    try {
+      let response = await fetch(url + id, {
+        "method": "DELETE",
+        "headers": { "Content-Type": "application/json" }
+      }
+      );
+      if (response.ok) {
+        container.innerHTML = "";
+        borrarTabla();
+        cargarTabla();
+      }
+      else
+        container.innerHTML = "<h1>Error - Failed URL!</h1>";
+    }
+    catch (response) {
+      container.innerHTML = "<h1>Connection error</h1>";
+    };
+  }
+
+  // BORRA TABLA, PERO NO MODIFICA EL CONTENIDO DE LA API
   function borrarTabla() {
     let items = tbody.querySelectorAll("tr");
 
@@ -246,19 +233,21 @@ function tablaDinamica() {
 
   }
 
-
-
+  // FILTROS
   async function filtrarPorSala() {
     event.preventDefault();
     let container = document.querySelector("#use-ajax");
     let mensaje = document.querySelector("#mensaje");
     let filtro = document.querySelector("#filtro").value;
     let filas = 0;
+
     //console.log(filtro)
     try {
       let r = await fetch(url)
       let json = await r.json();
       for (let i = 0; i < json.tablacine.length; i++) {
+        json.tablacine[i].thing.complejo = json.tablacine[i].thing.complejo.toLowerCase();
+        filtro = filtro.toLowerCase();
         let tr = document.querySelectorAll("#filas")
         tr[i].classList.remove("filtrado");
         tr[i].classList.add("filtro-oculto");
@@ -280,9 +269,12 @@ function tablaDinamica() {
     }
   }
 
+  // EJECUTA LA FUNCION DE FILTRAR
   let btnFiltrar = document.querySelector("#buscar")
   btnFiltrar.addEventListener("click", filtrarPorSala);
 
+
+  // RESETEA LA TABLA (NO MODIFICA LA API).
   let btnRestablecer = document.querySelector("#reset")
   btnRestablecer.addEventListener("click", function () {
     event.preventDefault();
